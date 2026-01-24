@@ -8,7 +8,7 @@ A custom build of [Caddy](https://caddyserver.com/) reverse proxy container.
 - [x] WebDAV support
 - [x] L4 support
 - [x] Cloudflare IP support
-- [x] Healthcheck support
+- [x] Built-in container health check support when running in docker
 
 ## Usage
 
@@ -18,6 +18,7 @@ A custom build of [Caddy](https://caddyserver.com/) reverse proxy container.
 {
     metrics
 }
+```
 
 2. For WebDAV support, follow the instructions [here](https://github.com/mholt/caddy-webdav).
 
