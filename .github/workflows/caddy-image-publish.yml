@@ -13,7 +13,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: skb50bd/caddy
+  IMAGE_NAME: skb50bd/caddy-docker
 
 jobs:
   build-and-push:
