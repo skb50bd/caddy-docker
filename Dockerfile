@@ -5,6 +5,7 @@ RUN xcaddy build \
     --with github.com/mholt/caddy-webdav \
     --with github.com/mholt/caddy-l4 \
     --with github.com/WeidiDeng/caddy-cloudflare-ip \
+    --with github.com/fvbommel/caddy-combine-ip-ranges \
     --with github.com/caddyserver/cache-handler \
     --with github.com/darkweak/storages/otter/caddy
 
