@@ -8,7 +8,8 @@ RUN xcaddy build \
     --with github.com/fvbommel/caddy-dns-ip-range \
     --with github.com/fvbommel/caddy-combine-ip-ranges \
     --with github.com/caddyserver/cache-handler \
-    --with github.com/darkweak/storages/otter/caddy
+    --with github.com/darkweak/storages/otter/caddy \ 
+    --with github.com/lucaslorentz/caddy-docker-proxy
 
 FROM caddy:latest
 
