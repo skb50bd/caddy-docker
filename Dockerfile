@@ -9,7 +9,7 @@ RUN xcaddy build \
     --with github.com/fvbommel/caddy-combine-ip-ranges \
     --with github.com/caddyserver/cache-handler \
     --with github.com/darkweak/storages/otter/caddy \ 
-    --with github.com/lucaslorentz/caddy-docker-proxy
+    --with github.com/lucaslorentz/caddy-docker-proxy/plugin/v2
 
 FROM caddy:latest
 
@@ -18,3 +18,5 @@ COPY --from=builder /usr/bin/caddy /usr/bin/caddy
 EXPOSE 2019
 HEALTHCHECK --interval=10s --timeout=10s --start-period=5s --retries=10 \
     CMD wget --no-verbose -T 1 http://127.0.0.1:2019/metrics -O - || exit 1
+
+CMD ["caddy", "docker-proxy"]
