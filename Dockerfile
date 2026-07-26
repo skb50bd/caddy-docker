@@ -9,6 +9,7 @@ RUN xcaddy build \
     --with github.com/fvbommel/caddy-combine-ip-ranges \
     --with github.com/caddyserver/cache-handler \
     --with github.com/darkweak/storages/otter/caddy \ 
+    --with github.com/hslatman/caddy-crowdsec-bouncer/http \
     --with github.com/lucaslorentz/caddy-docker-proxy/plugin/v2
 
 FROM caddy:latest
