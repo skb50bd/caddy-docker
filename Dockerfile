@@ -1,7 +1,9 @@
-FROM caddy:2.11.4-builder AS builder
+FROM --platform=$BUILDPLATFORM caddy:2.11.4-builder AS builder
+ARG TARGETOS
+ARG TARGETARCH
 
 # Pin modules so rebuilding an ingress fix cannot silently upgrade unrelated plugins.
-RUN xcaddy build v2.11.4 \
+RUN GOOS="${TARGETOS}" GOARCH="${TARGETARCH}" xcaddy build v2.11.4 \
     --with github.com/caddy-dns/cloudflare@v0.2.4 \
     --with github.com/mholt/caddy-webdav@v0.0.0-20260127042217-fa2f366b0d75 \
     --with github.com/mholt/caddy-l4@v0.1.2 \

@@ -24,10 +24,17 @@ def free_port():
 
 class Lapi(http.server.BaseHTTPRequestHandler):
     streams = 0
+    hold_next = threading.Event()
+    inflight = threading.Event()
+    release = threading.Event()
 
     def do_GET(self):
         if self.path.startswith("/v1/decisions/stream"):
             type(self).streams += 1
+            if self.hold_next.is_set():
+                self.hold_next.clear()
+                self.inflight.set()
+                self.release.wait(timeout=2)
             body = {"deleted": [], "new": [{
                 "id": 1, "origin": "test", "scenario": "reload-regression",
                 "scope": "Ip", "type": "ban", "value": "203.0.113.66",
@@ -42,7 +49,11 @@ class Lapi(http.server.BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(encoded)))
         self.end_headers()
-        self.wfile.write(encoded)
+        try:
+            self.wfile.write(encoded)
+        except (BrokenPipeError, ConnectionResetError):
+            # A corrected bouncer cancels an in-flight LAPI request on shutdown.
+            pass
 
     def log_message(self, *_args):
         pass
@@ -102,6 +113,14 @@ def main():
             ], text=True)
             assert "crowdsec v0.14.1" in versions, versions
             for iteration in range(1, 31):
+                # Hold an old app's response across cancellation. Without the
+                # upstream fix, its subsequent decision send has no consumer
+                # and blocks Core.Shutdown while Caddy holds the config lock.
+                Lapi.inflight.clear()
+                Lapi.release.clear()
+                Lapi.hold_next.set()
+                assert Lapi.inflight.wait(timeout=2), "No in-flight streaming request"
+                threading.Timer(0.15, Lapi.release.set).start()
                 config["apps"]["http"]["servers"]["test"]["routes"][0]["handle"][1]["body"] = f"reload-{iteration}"
                 request(admin + "/load", config)
                 request(admin + "/config/")
