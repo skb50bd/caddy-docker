@@ -50,6 +50,20 @@ jobs:
             type=sha,format=short
             type=ref,event=tag
 
+      - name: Build reload-test image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          load: true
+          platforms: linux/amd64
+          tags: caddy-reload-test:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Verify CrowdSec config reloads
+        run: python3 tests/reload_smoke.py caddy-reload-test:ci
+
       - name: Build & Push
         uses: docker/build-push-action@v6
         with:
