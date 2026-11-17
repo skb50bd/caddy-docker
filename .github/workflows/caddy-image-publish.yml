@@ -61,8 +61,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Verify dependency minimum age
+        run: python3 tests/dependency_age.py caddy-reload-test:ci
+
       - name: Verify CrowdSec config reloads
         run: python3 tests/reload_smoke.py caddy-reload-test:ci
+
+      - name: Verify Docker label routing
+        run: python3 tests/docker_proxy_smoke.py caddy-reload-test:ci
 
       - name: Build & Push
         uses: docker/build-push-action@v6
