@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import time
+import urllib.error
 import urllib.request
 
 
@@ -12,8 +14,17 @@ def check_module(module):
     name, version = module
     escaped = ''.join('!' + c.lower() if c.isupper() else c for c in name)
     url = f'https://proxy.golang.org/{escaped}/@v/{version}.info'
-    with urllib.request.urlopen(url, timeout=30) as response:
-        info = json.load(response)
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(url, timeout=30) as response:
+                info = json.load(response)
+            break
+        except (OSError, urllib.error.URLError) as error:
+            if isinstance(error, urllib.error.HTTPError) and error.code < 500 and error.code != 429:
+                raise
+            if attempt == 2:
+                raise
+            time.sleep(0.5 * (2 ** attempt))
     return {'module': name, 'version': version, 'date': info['Time'], 'source': url}
 
 

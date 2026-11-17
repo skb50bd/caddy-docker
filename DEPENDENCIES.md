@@ -40,6 +40,7 @@ variables, so inspect `NO_PROXY` before using HTTPS with a global proxy.
 
 ```sh
 docker build -t caddy-deps:20261117 .
+python3 tests/nonroot_bind_smoke.py caddy-deps:20261117
 python3 tests/dependency_age.py caddy-deps:20261117
 python3 tests/reload_smoke.py caddy-deps:20261117
 python3 tests/docker_proxy_smoke.py caddy-deps:20261117
@@ -77,3 +78,12 @@ reloads, TLS, HTTP/2/3, WebSockets/h2c where used, CrowdSec polling and bans.
 - https://github.com/caddyserver/cache-handler/compare/v0.16.0...v0.17.0
 - https://github.com/mholt/caddy-l4/releases/tag/v0.1.3
 - https://proxy.golang.org/github.com/darkweak/storages/otter/caddy/@v/v0.0.23.info
+
+## Non-root privileged ports
+
+The binary retains `cap_net_bind_service=ep`, matching the official Caddy image.
+A native capability stage applies this attribute before the final COPY, allowing
+amd64/arm64 cross-compilation without executing an arm64 tool. The non-root smoke
+test runs UID 1000 with `ip_unprivileged_port_start=1024` and verifies port 443.
+Without this attribute, host-network services on a normal privileged-port kernel
+fail at startup even though configuration validation and high-port tests pass.
