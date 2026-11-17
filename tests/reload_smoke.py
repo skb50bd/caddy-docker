@@ -12,6 +12,7 @@ import sys
 import tempfile
 import threading
 import time
+import urllib.error
 import urllib.request
 import uuid
 
@@ -59,8 +60,10 @@ class Lapi(http.server.BaseHTTPRequestHandler):
         pass
 
 
-def request(url, data=None):
-    headers = {"Content-Type": "application/json"} if data is not None else {}
+def request(url, data=None, headers=None):
+    headers = dict(headers or {})
+    if data is not None:
+        headers["Content-Type"] = "application/json"
     with urllib.request.urlopen(urllib.request.Request(
         url, data=None if data is None else json.dumps(data).encode(), headers=headers
     ), timeout=5) as response:
@@ -84,6 +87,8 @@ def main():
             },
             "http": {"servers": {"test": {
                 "listen": [f"127.0.0.1:{http_port}"],
+                "trusted_proxies": {"source": "static", "ranges": ["127.0.0.0/8"]},
+                "client_ip_headers": ["X-Forwarded-For"],
                 "routes": [{"handle": [
                     {"handler": "crowdsec"},
                     {"handler": "static_response", "body": "reload-0"},
@@ -111,7 +116,7 @@ def main():
             versions = subprocess.check_output([
                 "docker", "exec", name, "caddy", "list-modules", "--versions",
             ], text=True)
-            assert "crowdsec v0.14.1" in versions, versions
+            assert "crowdsec v0.15.0" in versions, versions
             for iteration in range(1, 31):
                 # Hold an old app's response across cancellation. Without the
                 # upstream fix, its subsequent decision send has no consumer
@@ -128,9 +133,17 @@ def main():
                 assert body == f"reload-{iteration}".encode(), body
                 time.sleep(0.03)
             assert Lapi.streams >= 30, f"Only {Lapi.streams} streaming requests observed"
+            try:
+                request(f"http://127.0.0.1:{http_port}",
+                        headers={"X-Forwarded-For": "203.0.113.66"})
+            except urllib.error.HTTPError as error:
+                assert error.code == 403, error.code
+            else:
+                raise AssertionError("A streamed ban did not block the test IP")
+            assert request(f"http://127.0.0.1:{http_port}") == b"reload-30"
             profile = request(admin + "/debug/pprof/goroutine?debug=2").decode()
             assert "(*Core).Shutdown" not in profile, "Blocked CrowdSec shutdown"
-            print(f"PASS: 30 real reloads, {Lapi.streams} LAPI streams, responsive routing and config API")
+            print(f"PASS: 30 real reloads, {Lapi.streams} LAPI streams, responsive routing/config API, banned IP denied and ordinary traffic allowed")
     except BaseException:
         subprocess.run(["docker", "logs", "--tail", "80", name], check=False)
         raise

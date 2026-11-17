@@ -1,0 +1,38 @@
+[
+  {
+    "module": "caddyserver/caddy",
+    "version": "v2.11.9",
+    "date": "2026-11-05T01:30:24Z",
+    "source": "https://github.com/caddyserver/caddy/releases/tag/v2.11.9"
+  },
+  {
+    "module": "hslatman/caddy-crowdsec-bouncer",
+    "version": "v0.15.0",
+    "date": "2026-11-02T11:17:42Z",
+    "source": "https://github.com/hslatman/caddy-crowdsec-bouncer/releases/tag/v0.15.0"
+  },
+  {
+    "module": "lucaslorentz/caddy-docker-proxy",
+    "version": "v2.13.1",
+    "date": "2026-07-02T06:33:54Z",
+    "source": "https://github.com/lucaslorentz/caddy-docker-proxy/releases/tag/v2.13.1"
+  },
+  {
+    "module": "caddyserver/cache-handler",
+    "version": "v0.17.0",
+    "date": "2026-09-17T11:09:05Z",
+    "source": "https://github.com/caddyserver/cache-handler/releases/tag/v0.17.0"
+  },
+  {
+    "module": "golang:1.27.3-alpine",
+    "version": "1.27.3-alpine",
+    "date": "2026-11-05T19:19:47.196544986Z",
+    "source": "docker image inspect golang:1.27.3-alpine@sha256:fa3d596898d9f126af7c01d14ee7597bab3f39cccf392ef36b69fe77cd681f18"
+  },
+  {
+    "module": "caddy:2.11.9",
+    "version": "2.11.9",
+    "date": "2026-11-05T19:37:08.620385055Z",
+    "source": "docker image inspect caddy:2.11.9@sha256:4851e54a46b206517c574821bb5cc67f170d2156041e9fbc4c9193b45e84a75b"
+  }
+]

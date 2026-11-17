@@ -37,3 +37,7 @@ CI runs `python3 tests/reload_smoke.py caddy-reload-test:ci` against an isolated
 local fake LAPI before publishing. It verifies 30 real configuration reloads,
 streaming decisions, HTTP responses, and admin API responsiveness. The image
 health check queries `/config/`, because `/metrics` can succeed during the deadlock.
+
+## Reproducible builds and updates
+
+See [DEPENDENCIES.md](DEPENDENCIES.md) for selected versions, release ages, compatibility notes, validation, and the staged rollout procedure. The compiler and runtime are digest-pinned, and Go dependencies are locked in `go.mod`/`go.sum`.
